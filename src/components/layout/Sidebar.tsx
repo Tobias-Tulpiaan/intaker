@@ -1,6 +1,12 @@
 import Link from "next/link";
-import { Home } from "lucide-react";
+import { Home, Users, ClipboardList } from "lucide-react";
 import { auth, signOut } from "@/auth";
+
+const navItems = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/candidates", label: "Kandidaten", icon: Users },
+  { href: "/intakes", label: "Intakes", icon: ClipboardList },
+];
 
 function initials(name?: string | null, email?: string | null) {
   const source = (name ?? email ?? "?").trim();
@@ -22,13 +28,19 @@ export async function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
-        <Link
-          href="/"
-          className="flex items-center gap-3 rounded px-3 py-2 text-sm text-tulpiaan-ivoor hover:bg-tulpiaan-grijs/20 transition-colors"
-        >
-          <Home className="h-4 w-4 text-tulpiaan-goud" />
-          Home
-        </Link>
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center gap-3 rounded px-3 py-2 text-sm text-tulpiaan-ivoor hover:bg-tulpiaan-grijs/20 transition-colors"
+            >
+              <Icon className="h-4 w-4 text-tulpiaan-goud" />
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="border-t border-tulpiaan-grijs/30 px-3 py-4 flex items-center gap-3">

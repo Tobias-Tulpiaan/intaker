@@ -1,0 +1,100 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat("nl-NL", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d);
+}
+
+export default async function IntakesPage() {
+  const intakes = await prisma.intake.findMany({
+    orderBy: { intakeDate: "desc" },
+    include: {
+      candidate: { select: { firstName: true, lastName: true } },
+      recruiter: { select: { name: true, email: true } },
+    },
+  });
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-tulpiaan-zwart">Intakes</h1>
+        <Link
+          href="/intakes/new"
+          className="inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Nieuwe intake
+        </Link>
+      </div>
+
+      {intakes.length === 0 ? (
+        <div className="rounded border border-dashed border-tulpiaan-grijs/40 bg-tulpiaan-wit p-8 text-center">
+          <p className="text-tulpiaan-grijs">Nog geen intakes.</p>
+          <Link
+            href="/intakes/new"
+            className="inline-block mt-3 text-tulpiaan-donkergoud hover:underline font-medium"
+          >
+            Start de eerste
+          </Link>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded border border-tulpiaan-grijs/20 bg-tulpiaan-wit">
+          <table className="w-full text-sm">
+            <thead className="bg-tulpiaan-ivoor border-b border-tulpiaan-grijs/20">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Kandidaat</th>
+                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Functie</th>
+                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Opdrachtgever</th>
+                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Recruiter</th>
+                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Datum</th>
+                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {intakes.map((i) => (
+                <tr
+                  key={i.id}
+                  className="border-b border-tulpiaan-grijs/10 last:border-0 hover:bg-tulpiaan-ivoor/50"
+                >
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/intakes/${i.id}`}
+                      className="text-tulpiaan-zwart font-medium hover:text-tulpiaan-donkergoud"
+                    >
+                      {i.candidate.firstName} {i.candidate.lastName}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-tulpiaan-grijs">{i.positionTitle ?? "—"}</td>
+                  <td className="px-4 py-3 text-tulpiaan-grijs">{i.clientName ?? "—"}</td>
+                  <td className="px-4 py-3 text-tulpiaan-grijs">
+                    {i.recruiter.name ?? i.recruiter.email}
+                  </td>
+                  <td className="px-4 py-3 text-tulpiaan-grijs">{formatDate(i.intakeDate)}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={
+                        "inline-flex text-xs px-2 py-1 rounded-full " +
+                        (i.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-tulpiaan-ivoor text-tulpiaan-grijs border border-tulpiaan-grijs/30")
+                      }
+                    >
+                      {i.status === "completed" ? "Afgerond" : "Concept"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}

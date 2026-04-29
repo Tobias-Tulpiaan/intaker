@@ -21,4 +21,39 @@ model User {
   totpEnabled     Boolean   @default(false)
   recoveryCodes   String[]  @default([])
   totpVerifiedAt  DateTime?
+
+  intakes       Intake[]
+}
+
+model Candidate {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String?  @unique
+  phone        String?
+  city         String?
+  linkedinUrl  String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  intakes      Intake[]
+}
+
+model Intake {
+  id            String    @id @default(cuid())
+  candidate     Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidateId   String
+  recruiter     User      @relation(fields: [recruiterId], references: [id])
+  recruiterId   String
+  clientName    String?
+  positionTitle String?
+  intakeDate    DateTime  @default(now())
+  status        String    @default("draft")
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([candidateId])
+  @@index([recruiterId])
 }

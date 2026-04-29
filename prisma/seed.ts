@@ -22,6 +22,20 @@ async function main() {
       },
     });
   }
+
+  await prisma.candidate.upsert({
+    where: { email: "jan.devries@example.nl" },
+    update: {},
+    create: {
+      firstName: "Jan",
+      lastName: "de Vries",
+      email: "jan.devries@example.nl",
+      phone: "+31 6 12345678",
+      city: "Apeldoorn",
+      linkedinUrl: "https://linkedin.com/in/jandevries-example",
+      notes: "Voorbeeld-kandidaat voor lokale tests.",
+    },
+  });
 }
 
 main()
