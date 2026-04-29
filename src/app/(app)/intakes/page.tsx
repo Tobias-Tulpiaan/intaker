@@ -23,11 +23,11 @@ export default async function IntakesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h1 className="text-2xl font-semibold text-tulpiaan-zwart">Intakes</h1>
         <Link
           href="/intakes/new"
-          className="inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors"
+          className="inline-flex items-center justify-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           Nieuwe intake
@@ -45,8 +45,47 @@ export default async function IntakesPage() {
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded border border-tulpiaan-grijs/20 bg-tulpiaan-wit">
-          <table className="w-full text-sm">
+        <>
+          {/* Mobile cards */}
+          <ul className="sm:hidden space-y-2">
+            {intakes.map((i) => (
+              <li
+                key={i.id}
+                className="bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-4 hover:border-tulpiaan-goud transition-colors"
+              >
+                <Link href={`/intakes/${i.id}`} className="block">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-tulpiaan-zwart truncate">
+                        {i.candidate.firstName} {i.candidate.lastName}
+                      </div>
+                      <div className="text-xs text-tulpiaan-grijs mt-0.5 truncate">
+                        {i.positionTitle ?? "—"}
+                        {i.clientName ? ` · ${i.clientName}` : ""}
+                      </div>
+                      <div className="text-xs text-tulpiaan-grijs mt-0.5">
+                        {formatDate(i.intakeDate)}
+                      </div>
+                    </div>
+                    <span
+                      className={
+                        "inline-flex text-xs px-2 py-1 rounded-full whitespace-nowrap " +
+                        (i.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-tulpiaan-ivoor text-tulpiaan-grijs border border-tulpiaan-grijs/30")
+                      }
+                    >
+                      {i.status === "completed" ? "Afgerond" : "Concept"}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* Desktop table */}
+          <div className="hidden sm:block overflow-x-auto rounded border border-tulpiaan-grijs/20 bg-tulpiaan-wit">
+            <table className="w-full text-sm min-w-[720px]">
             <thead className="bg-tulpiaan-ivoor border-b border-tulpiaan-grijs/20">
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Kandidaat</th>
@@ -93,7 +132,8 @@ export default async function IntakesPage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

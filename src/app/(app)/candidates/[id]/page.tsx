@@ -46,7 +46,7 @@ export default async function CandidatePage({
       </div>
 
       <div className="bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-6 mb-6">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <Row label="E-mail" value={candidate.email} />
           <Row label="Telefoon" value={candidate.phone} />
           <Row label="Woonplaats" value={candidate.city} />

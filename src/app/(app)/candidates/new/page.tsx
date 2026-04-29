@@ -33,14 +33,14 @@ export default function NewCandidatePage() {
       )}
 
       <form action={formAction} className="space-y-4 bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Voornaam *" name="firstName" required />
           <Field label="Achternaam *" name="lastName" required />
         </div>
 
         <Field label="E-mail" name="email" type="email" />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Telefoon" name="phone" type="tel" placeholder="+31 6 …" />
           <Field label="Woonplaats" name="city" />
         </div>

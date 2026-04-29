@@ -47,7 +47,7 @@ export default async function IntakePage({
         >
           ← Terug naar intakes
         </Link>
-        <div className="flex items-start justify-between mt-2">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mt-2">
           <div>
             <h1 className="text-2xl font-semibold text-tulpiaan-zwart">
               {intake.positionTitle ?? "Intake"}
@@ -79,7 +79,7 @@ export default async function IntakePage({
       </div>
 
       <div className="bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-6 mb-6">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <Row label="Datum" value={formatDate(intake.intakeDate)} />
           <Row
             label="Recruiter"
