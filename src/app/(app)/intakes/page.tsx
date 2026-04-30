@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { statusLabel, statusPillClass } from "@/lib/intake-status";
 
 export const dynamic = "force-dynamic";
 
@@ -70,12 +71,10 @@ export default async function IntakesPage() {
                     <span
                       className={
                         "inline-flex text-xs px-2 py-1 rounded-full whitespace-nowrap " +
-                        (i.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-tulpiaan-ivoor text-tulpiaan-grijs border border-tulpiaan-grijs/30")
+                        statusPillClass(i.status)
                       }
                     >
-                      {i.status === "completed" ? "Afgerond" : "Concept"}
+                      {statusLabel(i.status)}
                     </span>
                   </div>
                 </Link>
@@ -120,12 +119,10 @@ export default async function IntakesPage() {
                     <span
                       className={
                         "inline-flex text-xs px-2 py-1 rounded-full " +
-                        (i.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-tulpiaan-ivoor text-tulpiaan-grijs border border-tulpiaan-grijs/30")
+                        statusPillClass(i.status)
                       }
                     >
-                      {i.status === "completed" ? "Afgerond" : "Concept"}
+                      {statusLabel(i.status)}
                     </span>
                   </td>
                 </tr>

@@ -7,10 +7,12 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const session = await auth();
-  const [candidateCount, intakeCount, draftCount] = await Promise.all([
+  const [candidateCount, intakeCount, openCount] = await Promise.all([
     prisma.candidate.count(),
     prisma.intake.count(),
-    prisma.intake.count({ where: { status: "draft" } }),
+    prisma.intake.count({
+      where: { status: { in: ["setup", "intake"] } },
+    }),
   ]);
 
   return (
@@ -39,8 +41,8 @@ export default async function HomePage() {
         <StatCard
           href="/intakes"
           icon={ClipboardList}
-          label="Concept-intakes"
-          value={draftCount}
+          label="Open intakes"
+          value={openCount}
         />
       </div>
     </div>

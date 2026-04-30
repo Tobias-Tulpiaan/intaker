@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { statusLabel, statusPillClass } from "@/lib/intake-status";
 
 export const dynamic = "force-dynamic";
 
@@ -139,17 +140,13 @@ function Row({
 }
 
 function StatusPill({ status }: { status: string }) {
-  const isCompleted = status === "completed";
   return (
     <span
       className={
-        "inline-flex text-xs px-2 py-1 rounded-full " +
-        (isCompleted
-          ? "bg-green-100 text-green-800"
-          : "bg-tulpiaan-ivoor text-tulpiaan-grijs border border-tulpiaan-grijs/30")
+        "inline-flex text-xs px-2 py-1 rounded-full " + statusPillClass(status)
       }
     >
-      {isCompleted ? "Afgerond" : "Concept"}
+      {statusLabel(status)}
     </span>
   );
 }

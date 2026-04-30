@@ -47,12 +47,49 @@ model Intake {
   recruiter     User      @relation(fields: [recruiterId], references: [id])
   recruiterId   String
   clientName    String?
+  contactpersoon String?
   positionTitle String?
   intakeDate    DateTime  @default(now())
-  status        String    @default("draft")
-  notes         String?
+  status        String    @default("setup")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  vacatureTekst       String? @db.Text
+  werkervaringTekst   String? @db.Text
+  bedrijfsUrl         String?
+  bedrijfsTekst       String? @db.Text
+  afzender            String  @default("tobias")
+
+  opMaatVragen        Json?
+
+  woonplaats          String?
+  leeftijd            String?
+  priveSituatie       String?
+
+  huidigeWerkgever      String?
+  huidigeRol            String?
+  huidigeRolToelichting String? @db.Text
+  klantsegment          String? @db.Text
+
+  eerdereErvaring   String? @db.Text
+  redenVervolgstap  String? @db.Text
+  matchToelichting  String? @db.Text
+  anekdote          String? @db.Text
+  haakjes           String? @db.Text
+  nuance            String? @db.Text
+
+  uren            String?
+  salaris         String?
+  bonusLease      String?
+  opzegtermijn    String?
+  beschikbaarheid String?
+  hybride         String?
+
+  kladblok        String? @db.Text
+
+  voorstelStijl         String?
+  voorstelTekst         String? @db.Text
+  voorstelGegenereerdOp DateTime?
 
   @@index([candidateId])
   @@index([recruiterId])
