@@ -9,11 +9,12 @@ Categorieën (gebruik in deze verdeling):
 - 1x ANEKDOTE: triggert een specifiek werkvoorbeeld dat de werkwijze van de kandidaat illustreert. Niet abstract ("geef een voorbeeld") maar gericht ("vraag een situatie waarin hij [iets uit vacature] deed").
 
 HARDE REGELS:
-- Iedere vraag MOET minstens één element citeren of refereren uit: vacaturetekst, werkervaring, of bedrijfswebsite. Anders is het generiek = fout.
+- Iedere vraag MOET minstens één element citeren of refereren uit: vacaturetekst, werkervaring, bedrijfswebsite, of vrije gespreksnotities. Anders is het generiek = fout.
 - Gebruik géén em-dashes (—), géén puntkommas (;)
 - Schrijf in 'je'-vorm, niet 'u'
 - Hou vragen kort (max 25 woorden)
 - Als input ontbreekt voor een categorie, sla die over. Beter 4 raakke vragen dan 7 generieke.
+- Als vrije gespreksnotities ingevuld zijn, gebruik die als extra bron voor specifieke haakjes en doorvragen.
 
 Output: ALLEEN een JSON-array, geen omtrek-tekst.
 Format:
@@ -31,6 +32,7 @@ export type VragenPromptInput = {
   werkervaringTekst: string | null;
   bedrijfsUrl: string | null;
   bedrijfsTekst: string | null;
+  vrijInvullenTekst: string | null;
 };
 
 export function buildVragenUserPrompt(input: VragenPromptInput): string {
@@ -49,6 +51,10 @@ export function buildVragenUserPrompt(input: VragenPromptInput): string {
     bedrijfsContent = "[geen bedrijfscontent beschikbaar]";
   }
 
+  const vrijeNotities = input.vrijInvullenTekst?.trim()
+    ? `\n\n## Vrije gespreksnotities (al verzameld door recruiter):\n${input.vrijInvullenTekst.trim()}`
+    : "";
+
   return `Vacature voor: ${functietitel} bij ${opdrachtgever}
 
 ## Vacaturetekst:
@@ -60,7 +66,7 @@ ${bedrijfsContent}
 ## Kandidaat:
 Naam: ${input.kandidaatNaam}
 LinkedIn / werkervaring:
-${werkervaring}
+${werkervaring}${vrijeNotities}
 
 Genereer nu 5-7 op-maat-vragen volgens de instructies.`;
 }
@@ -87,6 +93,20 @@ ABSOLUTE REGELS — overtreden = output is fout:
 5. CIJFERS EXACT overnemen uit de input. Niet afronden, niet samenvatten ("vier jaar" als input zegt "4 jaar en 3 maanden"), niet transformeren ("vraagt euro X" als input zegt "huidig salaris euro X").
 6. GEEN feiten verzinnen. Als de input zegt "voorkeur leaseauto", schrijf dan exact dat. Niet "wil graag een leaseauto" of "verwacht een leaseauto".
 7. GEEN aankondigingen van wat je gaat zeggen ("Belangrijk om te benoemen:" alleen toegestaan als nuance-marker, niet als algemene opening).
+
+STRATEGISCHE INPUT VAN DE RECRUITER:
+
+De recruiter geeft je 3 strategische velden mee die je uitdrukkelijk moet gebruiken (indien ingevuld):
+
+1. matchAnalyse: hoe je de feiten met elkaar verbindt. Lees deze ZORGVULDIG. Dit vertelt je welke vacature-eisen matchen met welke ervaring. Verwerk die match natuurlijk in de lopende tekst (niet als lijst, niet als opsomming, gewoon als verhalend verband).
+
+2. ankerZin: de zin die de tekst moet dragen. Vaak een quote van de kandidaat, of een specifiek detail dat raakt. Bouw de tekst rond deze zin. Geef hem een prominente plek (typisch in de derde alinea).
+
+3. verzwijgDit: dingen die de recruiter EXPLICIET niet in de tekst wil. RESPECTEER dit absoluut. Als verzwijgDit zegt "vrijdagmiddag-vrij niet noemen", gebruik je dat detail nergens, ook niet impliciet.
+
+4. vrijInvullenTekst: optioneel veld waar de recruiter ALLE losse gespreksnotities, observaties of onderwerpen kan plakken. Behandel dit als een RIJKE BRON van context, anekdotes en details die mogelijk niet in de gestructureerde sectie-velden passen. Verwerk relevante informatie eruit. Als de sectie-velden ook ingevuld zijn, gebruik die als gestructureerde feiten en vrijInvullenTekst als aanvulling. Als alleen vrijInvullenTekst is ingevuld, gebruik die als primaire bron.
+
+Als één van deze velden leeg is, vertrouw dan op je eigen oordeel. Maar als ze ingevuld zijn, volgen ze prioriteit boven je eigen interpretatie.
 
 STRUCTUUR (4-5 alinea's, niet meer):
 
@@ -185,11 +205,20 @@ export type VoorstelPromptInput = {
   beschikbaarheid: string | null;
   hybride: string | null;
   kladblok: string | null;
+  matchAnalyse: string | null;
+  ankerZin: string | null;
+  verzwijgDit: string | null;
+  vrijInvullenTekst: string | null;
 };
 
 function v(value: string | null | undefined): string {
   const t = (value ?? "").trim();
   return t || "[leeg]";
+}
+
+function vGeen(value: string | null | undefined): string {
+  const t = (value ?? "").trim();
+  return t || "[geen]";
 }
 
 const AFZENDER_LABEL: Record<string, string> = {
@@ -253,6 +282,14 @@ Hybride: ${v(input.hybride)}
 
 ## Kladblok / vrije notities
 ${v(input.kladblok)}
+
+## Vrij ingevulde gespreksnotities
+${vGeen(input.vrijInvullenTekst)}
+
+## Strategische input van de recruiter
+Match-analyse: ${vGeen(input.matchAnalyse)}
+Anker-zin: ${vGeen(input.ankerZin)}
+Verzwijg uitdrukkelijk: ${vGeen(input.verzwijgDit)}
 
 Schrijf de voorsteltekst. Eén versie, in Tulpiaan-stijl zoals de referentie-tekst.`;
 }
@@ -359,4 +396,43 @@ Beperk tot maximaal 10 wijzigingen per keer.`;
 
 export function buildVerbeterTekstUserPrompt(tekst: string): string {
   return `Tekst om te verbeteren:\n${tekst}`;
+}
+
+export const PAS_AAN_SYSTEM = `Je bent een ervaren recruiter bij Tulpiaan. Je taak: pas een bestaande voorsteltekst aan op basis van specifieke instructies van een collega.
+
+STRIKTE REGELS:
+- Lees de instructies ZORGVULDIG en respecteer ze letterlijk. Als de instructie zegt "alinea 2 korter", verkort je alleen alinea 2 — niet 1, niet 3, niet de bullets.
+- Verander GEEN andere delen van de tekst dan waar de instructie om vraagt
+- Behoud Tulpiaan tone-of-voice:
+  * GEEN em-dashes, GEEN puntkommas
+  * GEEN sturende frasen ("match is sterk", "soms gaat het snel", "Eerlijk is eerlijk", "Wat me bijbleef", "echt een pareltje")
+  * GEEN u-vorm, altijd 'je'
+  * Cijfers exact behouden
+- Als de instructie onduidelijk is of conflicteert met regels, volg dan de regels en negeer dat stukje van de instructie. Liever beperkt aanpassen dan tone-of-voice breken.
+
+Output: ALLEEN een JSON-object, geen omtrek-tekst.
+Format:
+{
+  "suggesties": [
+    {
+      "id": "uniek-id",
+      "regel_index": 0,
+      "origineel": "exacte huidige tekst die je wilt vervangen",
+      "voorgesteld": "nieuwe versie",
+      "type": "stijl",
+      "uitleg": "korte uitleg, max 20 woorden, refereert naar de instructie van de recruiter"
+    }
+  ]
+}
+
+Beperk tot het AANTAL aanpassingen dat de instructie echt vereist. Geen extra suggesties die niet gevraagd zijn.`;
+
+export function buildPasAanUserPrompt(tekst: string, opmerkingen: string): string {
+  return `## Huidige voorsteltekst
+${tekst}
+
+## Instructies van de recruiter
+${opmerkingen}
+
+Pas de tekst aan volgens deze instructies. Geef suggesties terug als track changes.`;
 }

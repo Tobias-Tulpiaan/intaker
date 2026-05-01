@@ -49,6 +49,9 @@ export default async function SetupPage({
           vacatureTekst: intake.vacatureTekst ?? "",
           werkervaringTekst: intake.werkervaringTekst ?? "",
           bedrijfsUrl: intake.bedrijfsUrl ?? "",
+          matchAnalyse: intake.matchAnalyse ?? "",
+          ankerZin: intake.ankerZin ?? "",
+          verzwijgDit: intake.verzwijgDit ?? "",
         }}
         candidates={candidates}
       />

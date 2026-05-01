@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Link as LinkIcon, Globe } from "lucide-react";
 import { saveSetupAndGenerate, type SetupFormState } from "./actions";
+import { useAutoSave } from "@/components/intake/useAutoSave";
 
 const initialState: SetupFormState = {};
 
@@ -23,6 +24,15 @@ type Intake = {
   vacatureTekst: string;
   werkervaringTekst: string;
   bedrijfsUrl: string;
+  matchAnalyse: string;
+  ankerZin: string;
+  verzwijgDit: string;
+};
+
+type StrategischeFields = {
+  matchAnalyse: string;
+  ankerZin: string;
+  verzwijgDit: string;
 };
 
 export function SetupForm({
@@ -38,6 +48,21 @@ export function SetupForm({
   );
   const [mode, setMode] = useState<"existing" | "new">("existing");
   const [werkervaringMode, setWerkervaringMode] = useState<"paste" | "url">("paste");
+
+  const {
+    values: strat,
+    set: setStrat,
+    status: stratStatus,
+    errorMsg: stratErr,
+  } = useAutoSave<StrategischeFields>(
+    intake.id,
+    {
+      matchAnalyse: intake.matchAnalyse,
+      ankerZin: intake.ankerZin,
+      verzwijgDit: intake.verzwijgDit,
+    },
+    2000,
+  );
 
   return (
     <>
@@ -239,6 +264,49 @@ export function SetupForm({
           </div>
         </section>
 
+        {/* Strategische input voor AI (auto-save) */}
+        <section className="border-t border-tulpiaan-grijs/20 pt-5">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-sm font-semibold text-tulpiaan-zwart">
+              Strategische input voor AI (optioneel)
+            </h2>
+            <StratSaveIndicator status={stratStatus} errorMsg={stratErr} />
+          </div>
+          <p className="text-xs text-tulpiaan-grijs mb-3">
+            Drie velden die de AI laten weten wat jij in je hoofd hebt voordat
+            je schrijft. Allemaal optioneel — wijzigingen worden automatisch
+            opgeslagen.
+          </p>
+
+          <input type="hidden" name="matchAnalyse" value={strat.matchAnalyse} />
+          <input type="hidden" name="ankerZin" value={strat.ankerZin} />
+          <input type="hidden" name="verzwijgDit" value={strat.verzwijgDit} />
+
+          <div className="space-y-4">
+            <StratField
+              label="Match-analyse"
+              hint="Welke vacature-eisen matchen met welke ervaring? Bijv: hunter-mentaliteit in vacature ↔ cold-call campagnes bij ValidSign"
+              minHeight={100}
+              value={strat.matchAnalyse}
+              onChange={(v) => setStrat("matchAnalyse", v)}
+            />
+            <StratField
+              label="Anker-zin (de scheut peper)"
+              hint="Dé zin die de tekst draagt. Een quote van de kandidaat, een anekdote, een specifiek haakje. Bijv: 'Hij gebruikte zelf de woorden ondernemer van je eigen winkel'"
+              minHeight={80}
+              value={strat.ankerZin}
+              onChange={(v) => setStrat("ankerZin", v)}
+            />
+            <StratField
+              label="Wat verzwijg je bewust"
+              hint="Dingen die jij weet maar bewust niet vooraf wilt noemen. Wrijvingspunt-info, gevoelige details, gespreksruimte voor het kennismakingsgesprek. Bijv: 'Vrijdagmiddag-vrij niet noemen, gezien hun vrijdaglunch'"
+              minHeight={80}
+              value={strat.verzwijgDit}
+              onChange={(v) => setStrat("verzwijgDit", v)}
+            />
+          </div>
+        </section>
+
         <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3">
           <button
             type="submit"
@@ -287,4 +355,56 @@ function Field({
       />
     </div>
   );
+}
+
+function StratField({
+  label,
+  hint,
+  minHeight,
+  value,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  minHeight: number;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-tulpiaan-zwart">
+        {label}
+      </label>
+      <p className="text-xs text-tulpiaan-grijs mb-1">{hint}</p>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ minHeight: `${minHeight}px` }}
+        className="w-full rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-3 py-2 text-sm text-tulpiaan-zwart focus:outline-none focus:ring-2 focus:ring-tulpiaan-goud"
+      />
+    </div>
+  );
+}
+
+function StratSaveIndicator({
+  status,
+  errorMsg,
+}: {
+  status: "idle" | "saving" | "saved" | "error";
+  errorMsg: string | null;
+}) {
+  if (status === "saving") {
+    return <span className="text-xs text-tulpiaan-grijs">Bezig met opslaan…</span>;
+  }
+  if (status === "saved") {
+    return <span className="text-xs text-green-700">Opgeslagen ✓</span>;
+  }
+  if (status === "error") {
+    return (
+      <span className="text-xs text-red-700" title={errorMsg ?? ""}>
+        Opslaan faalde
+      </span>
+    );
+  }
+  return <span className="text-xs text-tulpiaan-grijs/60">—</span>;
 }

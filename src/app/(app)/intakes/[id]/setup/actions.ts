@@ -22,6 +22,9 @@ const setupSchema = z.object({
   vacatureTekst: z.string().optional(),
   werkervaringTekst: z.string().optional(),
   bedrijfsUrl: z.string().optional(),
+  matchAnalyse: z.string().optional(),
+  ankerZin: z.string().optional(),
+  verzwijgDit: z.string().optional(),
 });
 
 function s(v: FormDataEntryValue | null): string | undefined {
@@ -57,6 +60,9 @@ export async function saveSetupAndGenerate(
     vacatureTekst: s(formData.get("vacatureTekst")),
     werkervaringTekst: s(formData.get("werkervaringTekst")),
     bedrijfsUrl: s(formData.get("bedrijfsUrl")),
+    matchAnalyse: s(formData.get("matchAnalyse")),
+    ankerZin: s(formData.get("ankerZin")),
+    verzwijgDit: s(formData.get("verzwijgDit")),
   });
 
   if (!parsed.success) {
@@ -110,6 +116,9 @@ export async function saveSetupAndGenerate(
       vacatureTekst: data.vacatureTekst,
       werkervaringTekst: data.werkervaringTekst,
       bedrijfsUrl: data.bedrijfsUrl,
+      matchAnalyse: data.matchAnalyse,
+      ankerZin: data.ankerZin,
+      verzwijgDit: data.verzwijgDit,
     },
   });
 

@@ -12,6 +12,7 @@ import {
   SpellCheck,
   Wand2,
   Dice5,
+  MessageSquareText,
 } from "lucide-react";
 import { useAutoSave } from "@/components/intake/useAutoSave";
 import {
@@ -20,13 +21,14 @@ import {
   kiesVoorstelVersie,
 } from "./actions";
 import { TrackChangesModal } from "./TrackChangesModal";
+import { PasAanModal } from "./PasAanModal";
 import type { Suggestie } from "@/lib/intake-ai";
 
 type Fields = {
   voorstelTekst: string;
 };
 
-type ModalKind = "check" | "verbeter";
+type ModalKind = "check" | "verbeter" | "pasaan";
 
 export function VoorstelWorkspace({
   intakeId,
@@ -54,9 +56,11 @@ export function VoorstelWorkspace({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [generatePending, setGeneratePending] = useState(false);
-  const [aiBusy, setAiBusy] = useState<null | "check" | "verbeter" | "regenerate">(
-    null,
-  );
+  const [aiBusy, setAiBusy] = useState<
+    null | "check" | "verbeter" | "regenerate" | "pasaan"
+  >(null);
+  const [pasAanOpen, setPasAanOpen] = useState(false);
+  const [pasAanError, setPasAanError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [sentNotice, setSentNotice] = useState(status === "verstuurd");
   const [generatedAt, setGeneratedAt] = useState<string | null>(gegenereerdOp);
@@ -124,6 +128,38 @@ export function VoorstelWorkspace({
       setModalKind("verbeter");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Verbeteren faalde");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
+  function openPasAan() {
+    if (!heeftTekst) return;
+    setPasAanError(null);
+    setPasAanOpen(true);
+  }
+
+  async function submitPasAan(opmerkingen: string) {
+    setPasAanError(null);
+    setError(null);
+    setAiBusy("pasaan");
+    await flush();
+    try {
+      const res = await fetch(`/api/intakes/${intakeId}/pas-aan-tekst`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ opmerkingen }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `HTTP ${res.status}`);
+      }
+      const data = (await res.json()) as { suggesties: Suggestie[] };
+      setPasAanOpen(false);
+      setModalSuggesties(data.suggesties);
+      setModalKind("pasaan");
+    } catch (e) {
+      setPasAanError(e instanceof Error ? e.message : "Aanpassen faalde");
     } finally {
       setAiBusy(null);
     }
@@ -335,6 +371,13 @@ export function VoorstelWorkspace({
                 busy={aiBusy === "regenerate"}
                 disabled={aiBusy !== null}
               />
+              <ActionButton
+                icon={MessageSquareText}
+                label="Pas aan op basis van opmerkingen"
+                onClick={openPasAan}
+                busy={aiBusy === "pasaan"}
+                disabled={aiBusy !== null}
+              />
             </div>
           </aside>
         </div>
@@ -395,7 +438,9 @@ export function VoorstelWorkspace({
           titel={
             modalKind === "check"
               ? "Spelling- en grammatica-suggesties"
-              : "Tulpiaan-stijl-suggesties"
+              : modalKind === "verbeter"
+              ? "Tulpiaan-stijl-suggesties"
+              : "Aanpassingen op basis van jouw opmerkingen"
           }
           suggesties={modalSuggesties}
           onClose={() => {
@@ -403,6 +448,19 @@ export function VoorstelWorkspace({
             setModalSuggesties([]);
           }}
           onApply={applySuggesties}
+        />
+      )}
+
+      {pasAanOpen && (
+        <PasAanModal
+          busy={aiBusy === "pasaan"}
+          errorMsg={pasAanError}
+          onClose={() => {
+            if (aiBusy === "pasaan") return;
+            setPasAanOpen(false);
+            setPasAanError(null);
+          }}
+          onSubmit={submitPasAan}
         />
       )}
     </div>

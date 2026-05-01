@@ -27,8 +27,21 @@ type IntakeFields = {
   beschikbaarheid: string;
   hybride: string;
   kladblok: string;
+  vrijInvullenTekst: string;
   opMaatVragen: OpMaatVraag[];
 };
+
+const ONDERWERPEN = [
+  "Persoonlijk",
+  "Huidige situatie",
+  "Eerdere ervaring",
+  "Reden vervolgstap",
+  "Match met functie",
+  "Anekdote",
+  "Haakjes / netwerk",
+  "Nuance / kanttekening",
+  "Harde feiten",
+];
 
 const TAG_LABELS: Record<OpMaatVraag["tag"], string> = {
   warm: "Warm",
@@ -60,6 +73,7 @@ export function IntakeWorkspace({
   );
   const [kladblokOpenMobile, setKladblokOpenMobile] = useState(false);
   const [vragenOpen, setVragenOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<"vrij" | "vragenlijst">("vrij");
   const kladblokRef = useRef<HTMLTextAreaElement | null>(null);
 
   function insertTime() {
@@ -114,6 +128,67 @@ export function IntakeWorkspace({
         <div className="lg:hidden">
           <SaveIndicator status={status} errorMsg={errorMsg} />
         </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-tulpiaan-grijs/30">
+          <TabButton
+            active={activeTab === "vrij"}
+            onClick={() => setActiveTab("vrij")}
+          >
+            Vrij invullen
+          </TabButton>
+          <TabButton
+            active={activeTab === "vragenlijst"}
+            onClick={() => setActiveTab("vragenlijst")}
+          >
+            Vragenlijst
+          </TabButton>
+        </div>
+
+        {activeTab === "vrij" && (
+          <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4">
+            <aside className="rounded-lg border border-tulpiaan-grijs/20 bg-tulpiaan-wit p-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-tulpiaan-grijs mb-2">
+                Onderwerpen om te dekken
+              </h3>
+              <ol className="text-xs text-tulpiaan-grijs space-y-1">
+                {ONDERWERPEN.map((titel, i) => (
+                  <li key={titel} className="flex gap-2">
+                    <span className="text-tulpiaan-grijs/60 shrink-0">{i + 1}.</span>
+                    <span>{titel}</span>
+                  </li>
+                ))}
+              </ol>
+            </aside>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label
+                  htmlFor="vrijInvullenTekst"
+                  className="text-sm font-medium text-tulpiaan-zwart"
+                >
+                  Plak of typ hier alles van het gesprek
+                </label>
+                <span className="hidden md:inline">
+                  <SaveIndicator status={status} errorMsg={errorMsg} />
+                </span>
+              </div>
+              <p className="text-xs text-tulpiaan-grijs mb-2">
+                Werk in je eigen volgorde, hoeft niet gestructureerd. AI haalt
+                er straks de juiste informatie uit.
+              </p>
+              <textarea
+                id="vrijInvullenTekst"
+                value={values.vrijInvullenTekst}
+                onChange={(e) => set("vrijInvullenTekst", e.target.value)}
+                placeholder="Begin gewoon met typen…"
+                className="w-full min-h-[500px] rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit p-4 text-sm text-tulpiaan-zwart focus:outline-none focus:ring-2 focus:ring-tulpiaan-goud font-serif leading-relaxed resize-y"
+              />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "vragenlijst" && (
+          <>
 
         {/* Tip-callout */}
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
@@ -293,6 +368,9 @@ export function IntakeWorkspace({
           </div>
         </Section>
 
+          </>
+        )}
+
         <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3">
           <Link
             href={`/intakes/${intakeId}/voorstel`}
@@ -444,6 +522,31 @@ function Card({ children }: { children: React.ReactNode }) {
     <div className="rounded-lg border border-tulpiaan-grijs/20 bg-tulpiaan-wit p-4">
       {children}
     </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors " +
+        (active
+          ? "border-tulpiaan-goud text-tulpiaan-zwart"
+          : "border-transparent text-tulpiaan-grijs hover:text-tulpiaan-zwart")
+      }
+    >
+      {children}
+    </button>
   );
 }
 

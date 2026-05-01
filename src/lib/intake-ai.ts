@@ -42,6 +42,7 @@ export async function generateVragen(intakeId: string): Promise<OpMaatVraag[]> {
       werkervaringTekst: true,
       bedrijfsUrl: true,
       bedrijfsTekst: true,
+      vrijInvullenTekst: true,
       candidate: { select: { firstName: true, lastName: true } },
     },
   });
@@ -83,6 +84,17 @@ export async function verbeterTekst(tekst: string): Promise<Suggestie[]> {
   return await generateVerbeterSuggesties(tekst);
 }
 
+export async function pasAanTekst(
+  tekst: string,
+  opmerkingen: string,
+): Promise<Suggestie[]> {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY ontbreekt — AI-modi niet beschikbaar");
+  }
+  const { generatePasAanSuggesties } = await import("@/lib/anthropic-suggesties");
+  return await generatePasAanSuggesties(tekst, opmerkingen);
+}
+
 async function tryRealVragenCall(
   intake: {
     positionTitle: string | null;
@@ -91,6 +103,7 @@ async function tryRealVragenCall(
     werkervaringTekst: string | null;
     bedrijfsUrl: string | null;
     bedrijfsTekst: string | null;
+    vrijInvullenTekst: string | null;
     candidate: { firstName: string; lastName: string };
   } | null,
 ): Promise<OpMaatVraag[] | null> {
@@ -106,6 +119,7 @@ async function tryRealVragenCall(
       werkervaringTekst: intake.werkervaringTekst,
       bedrijfsUrl: intake.bedrijfsUrl,
       bedrijfsTekst: intake.bedrijfsTekst,
+      vrijInvullenTekst: intake.vrijInvullenTekst,
     });
   } catch {
     return null;

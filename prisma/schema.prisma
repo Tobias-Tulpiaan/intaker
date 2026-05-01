@@ -87,6 +87,12 @@ model Intake {
 
   kladblok        String? @db.Text
 
+  matchAnalyse    String? @db.Text
+  ankerZin        String? @db.Text
+  verzwijgDit     String? @db.Text
+
+  vrijInvullenTekst String? @db.Text
+
   voorstelStijl         String?
   voorstelTekst         String? @db.Text
   voorstelTekstV2       String? @db.Text

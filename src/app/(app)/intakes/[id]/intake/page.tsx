@@ -67,6 +67,7 @@ export default async function IntakePage({
           beschikbaarheid: intake.beschikbaarheid ?? "",
           hybride: intake.hybride ?? "",
           kladblok: intake.kladblok ?? "",
+          vrijInvullenTekst: intake.vrijInvullenTekst ?? "",
           opMaatVragen: opMaatVragen,
         }}
       />

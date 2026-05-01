@@ -2,8 +2,10 @@ import { getAnthropic, VRAGEN_MODEL, VOORSTEL_MODEL } from "@/lib/anthropic";
 import {
   CHECK_TEKST_SYSTEM,
   VERBETER_TEKST_SYSTEM,
+  PAS_AAN_SYSTEM,
   buildCheckTekstUserPrompt,
   buildVerbeterTekstUserPrompt,
+  buildPasAanUserPrompt,
 } from "@/lib/intake-prompts";
 import type { Suggestie, SuggestieType } from "@/lib/intake-ai";
 
@@ -99,6 +101,32 @@ export async function generateVerbeterSuggesties(
       },
     ],
     messages: [{ role: "user", content: buildVerbeterTekstUserPrompt(tekst) }],
+  });
+  const block = msg.content.find((b) => b.type === "text");
+  if (!block || block.type !== "text") {
+    throw new Error("Anthropic-response bevatte geen tekst-blok");
+  }
+  return parseSuggesties(block.text);
+}
+
+export async function generatePasAanSuggesties(
+  tekst: string,
+  opmerkingen: string,
+): Promise<Suggestie[]> {
+  const client = getAnthropic();
+  const msg = await client.messages.create({
+    model: VOORSTEL_MODEL,
+    max_tokens: 4000,
+    system: [
+      {
+        type: "text",
+        text: PAS_AAN_SYSTEM,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    messages: [
+      { role: "user", content: buildPasAanUserPrompt(tekst, opmerkingen) },
+    ],
   });
   const block = msg.content.find((b) => b.type === "text");
   if (!block || block.type !== "text") {

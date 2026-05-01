@@ -45,6 +45,10 @@ export async function generateVoorstelViaAnthropic(
     beschikbaarheid: intake.beschikbaarheid,
     hybride: intake.hybride,
     kladblok: intake.kladblok,
+    matchAnalyse: intake.matchAnalyse,
+    ankerZin: intake.ankerZin,
+    verzwijgDit: intake.verzwijgDit,
+    vrijInvullenTekst: intake.vrijInvullenTekst,
   });
 
   const userPrompt =
