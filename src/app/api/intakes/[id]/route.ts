@@ -28,6 +28,8 @@ const patchSchema = z
     hybride: z.string().nullable().optional(),
     kladblok: z.string().nullable().optional(),
     opMaatVragen: z.unknown().optional(),
+    voorstelTekst: z.string().nullable().optional(),
+    voorstelTekstV2: z.string().nullable().optional(),
     status: z.enum(["setup", "intake", "voorstel", "verstuurd"]).optional(),
   })
   .strict();

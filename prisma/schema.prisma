@@ -89,6 +89,7 @@ model Intake {
 
   voorstelStijl         String?
   voorstelTekst         String? @db.Text
+  voorstelTekstV2       String? @db.Text
   voorstelGegenereerdOp DateTime?
 
   @@index([candidateId])

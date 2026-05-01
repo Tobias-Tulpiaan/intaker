@@ -1,11 +1,14 @@
 import { getAnthropic, VOORSTEL_MODEL } from "@/lib/anthropic";
-import { voorstelSystemFor, buildVoorstelUserPrompt } from "@/lib/intake-prompts";
+import {
+  VOORSTEL_SYSTEM,
+  buildVoorstelUserPrompt,
+  buildRegenereerUserPrompt,
+} from "@/lib/intake-prompts";
 import { prisma } from "@/lib/prisma";
-import type { VoorstelStijl } from "@/lib/intake-ai";
 
 export async function generateVoorstelViaAnthropic(
   intakeId: string,
-  stijl: VoorstelStijl,
+  eerdereVersie?: string,
 ): Promise<string> {
   const intake = await prisma.intake.findUnique({
     where: { id: intakeId },
@@ -14,8 +17,40 @@ export async function generateVoorstelViaAnthropic(
   if (!intake) throw new Error("Intake niet gevonden");
 
   const client = getAnthropic();
-  const system = voorstelSystemFor(stijl);
-  const userPrompt = buildVoorstelUserPrompt(intake);
+  const baseUserPrompt = buildVoorstelUserPrompt({
+    kandidaatNaam: `${intake.candidate.firstName} ${intake.candidate.lastName}`,
+    positionTitle: intake.positionTitle,
+    clientName: intake.clientName,
+    contactpersoon: intake.contactpersoon,
+    afzender: intake.afzender,
+    vacatureTekst: intake.vacatureTekst,
+    werkervaringTekst: intake.werkervaringTekst,
+    woonplaats: intake.woonplaats,
+    leeftijd: intake.leeftijd,
+    priveSituatie: intake.priveSituatie,
+    huidigeWerkgever: intake.huidigeWerkgever,
+    huidigeRol: intake.huidigeRol,
+    huidigeRolToelichting: intake.huidigeRolToelichting,
+    klantsegment: intake.klantsegment,
+    eerdereErvaring: intake.eerdereErvaring,
+    redenVervolgstap: intake.redenVervolgstap,
+    matchToelichting: intake.matchToelichting,
+    anekdote: intake.anekdote,
+    haakjes: intake.haakjes,
+    nuance: intake.nuance,
+    uren: intake.uren,
+    salaris: intake.salaris,
+    bonusLease: intake.bonusLease,
+    opzegtermijn: intake.opzegtermijn,
+    beschikbaarheid: intake.beschikbaarheid,
+    hybride: intake.hybride,
+    kladblok: intake.kladblok,
+  });
+
+  const userPrompt =
+    eerdereVersie && eerdereVersie.trim()
+      ? buildRegenereerUserPrompt(baseUserPrompt, eerdereVersie.trim())
+      : baseUserPrompt;
 
   const msg = await client.messages.create({
     model: VOORSTEL_MODEL,
@@ -23,7 +58,7 @@ export async function generateVoorstelViaAnthropic(
     system: [
       {
         type: "text",
-        text: system,
+        text: VOORSTEL_SYSTEM,
         cache_control: { type: "ephemeral" },
       },
     ],

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   ClipboardCopy,
   FileText,
@@ -8,54 +9,168 @@ import {
   Sparkles,
   Send,
   Check,
+  SpellCheck,
+  Wand2,
+  Dice5,
 } from "lucide-react";
+import { useAutoSave } from "@/components/intake/useAutoSave";
 import {
   genereerVoorstel,
-  saveVoorstelTekst,
   markeerVerstuurd,
+  kiesVoorstelVersie,
 } from "./actions";
+import { TrackChangesModal } from "./TrackChangesModal";
+import type { Suggestie } from "@/lib/intake-ai";
 
-type Stijl = "recht" | "warm" | "pareltje" | "zorgvuldig";
+type Fields = {
+  voorstelTekst: string;
+};
 
-const STIJLEN: { key: Stijl; titel: string; beschrijving: string }[] = [
-  { key: "recht", titel: "Recht door zee", beschrijving: "Kort, krachtig, geen omhaal" },
-  { key: "warm", titel: "Warm verhaal", beschrijving: "Uitgebreid, persoonlijk, met anekdote" },
-  { key: "pareltje", titel: "Pareltje gevonden", beschrijving: "Enthousiast, urgentie, uniciteit" },
-  { key: "zorgvuldig", titel: "Zorgvuldig & onderbouwd", beschrijving: "Formeel, gestructureerd, met nuance" },
-];
+type ModalKind = "check" | "verbeter";
 
 export function VoorstelWorkspace({
   intakeId,
-  initialStijl,
   initialTekst,
+  initialTekstV2,
   kandidaatNaam,
   handtekening,
   status,
   gegenereerdOp,
 }: {
   intakeId: string;
-  initialStijl: Stijl | null;
   initialTekst: string;
+  initialTekstV2: string | null;
   kandidaatNaam: string;
   handtekening: string;
   status: string;
   gegenereerdOp: string | null;
 }) {
-  const [stijl, setStijl] = useState<Stijl | null>(initialStijl);
-  const [tekst, setTekst] = useState<string>(initialTekst);
+  const router = useRouter();
+  const { values, set, status: saveStatus, errorMsg, flush } = useAutoSave<Fields>(
+    intakeId,
+    { voorstelTekst: initialTekst },
+    2000,
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [generatePending, setGeneratePending] = useState(false);
+  const [aiBusy, setAiBusy] = useState<null | "check" | "verbeter" | "regenerate">(
+    null,
+  );
   const [copied, setCopied] = useState(false);
-  const [savedNotice, setSavedNotice] = useState(false);
   const [sentNotice, setSentNotice] = useState(status === "verstuurd");
+  const [generatedAt, setGeneratedAt] = useState<string | null>(gegenereerdOp);
+
+  const [modalKind, setModalKind] = useState<ModalKind | null>(null);
+  const [modalSuggesties, setModalSuggesties] = useState<Suggestie[]>([]);
+
+  const tekst = values.voorstelTekst;
+  const heeftTekst = tekst.trim().length > 0;
+  const heeftV2 = initialTekstV2 !== null && initialTekstV2.trim().length > 0;
 
   function genereer() {
-    if (!stijl) return;
+    setError(null);
+    setGeneratePending(true);
+    startTransition(async () => {
+      const r = await genereerVoorstel(intakeId);
+      if (r.ok) {
+        set("voorstelTekst", r.tekst);
+        setGeneratedAt(new Date().toISOString());
+      } else {
+        setError(r.error);
+      }
+      setGeneratePending(false);
+    });
+  }
+
+  async function runCheck() {
+    if (!heeftTekst) return;
+    setError(null);
+    setAiBusy("check");
+    await flush();
+    try {
+      const res = await fetch(`/api/intakes/${intakeId}/check-tekst`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `HTTP ${res.status}`);
+      }
+      const data = (await res.json()) as { suggesties: Suggestie[] };
+      setModalSuggesties(data.suggesties);
+      setModalKind("check");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Check faalde");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
+  async function runVerbeter() {
+    if (!heeftTekst) return;
+    setError(null);
+    setAiBusy("verbeter");
+    await flush();
+    try {
+      const res = await fetch(`/api/intakes/${intakeId}/verbeter-tekst`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `HTTP ${res.status}`);
+      }
+      const data = (await res.json()) as { suggesties: Suggestie[] };
+      setModalSuggesties(data.suggesties);
+      setModalKind("verbeter");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Verbeteren faalde");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
+  async function runRegenerate() {
+    if (!heeftTekst) return;
+    setError(null);
+    setAiBusy("regenerate");
+    await flush();
+    try {
+      const res = await fetch(
+        `/api/intakes/${intakeId}/genereer-voorstel?regenerate=true`,
+        { method: "POST" },
+      );
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `HTTP ${res.status}`);
+      }
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Regenereren faalde");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
+  function applySuggesties(toAccept: Suggestie[]) {
+    let next = tekst;
+    for (const s of toAccept) {
+      const idx = next.indexOf(s.origineel);
+      if (idx !== -1) {
+        next =
+          next.slice(0, idx) + s.voorgesteld + next.slice(idx + s.origineel.length);
+      }
+    }
+    if (next !== tekst) set("voorstelTekst", next);
+    setModalKind(null);
+    setModalSuggesties([]);
+  }
+
+  function kiesVersie(versie: 1 | 2) {
     setError(null);
     startTransition(async () => {
-      const r = await genereerVoorstel(intakeId, stijl);
+      const r = await kiesVoorstelVersie(intakeId, versie);
       if (r.ok) {
-        setTekst(r.tekst);
+        router.refresh();
       } else {
         setError(r.error);
       }
@@ -96,25 +211,42 @@ export function VoorstelWorkspace({
     }
   }
 
-  function saveTekst() {
-    setError(null);
-    startTransition(async () => {
-      const r = await saveVoorstelTekst(intakeId, tekst);
-      if (r.ok) {
-        setSavedNotice(true);
-        setTimeout(() => setSavedNotice(false), 2000);
-      } else {
-        setError(r.error);
-      }
-    });
-  }
-
   function markVerstuurd() {
     startTransition(async () => {
       const r = await markeerVerstuurd(intakeId);
       if (r.ok) setSentNotice(true);
       else setError(r.error);
     });
+  }
+
+  // 2-version mode wins from edit-mode: user must first kies een versie
+  if (heeftV2) {
+    return (
+      <div className="space-y-4">
+        {error && (
+          <div role="alert" className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {error}
+          </div>
+        )}
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          Er zijn twee versies. Kies welke je wilt behouden — de andere wordt verwijderd.
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <VersieKolom
+            label="Versie 1 (origineel)"
+            tekst={initialTekst}
+            onKies={() => kiesVersie(1)}
+            disabled={pending}
+          />
+          <VersieKolom
+            label="Versie 2 (regenereerd)"
+            tekst={initialTekstV2 ?? ""}
+            onKies={() => kiesVersie(2)}
+            disabled={pending}
+          />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -125,122 +257,237 @@ export function VoorstelWorkspace({
         </div>
       )}
 
-      <div>
-        <h2 className="text-sm font-semibold text-tulpiaan-zwart mb-2">Stijl</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {STIJLEN.map((s) => {
-            const active = stijl === s.key;
-            return (
-              <button
-                key={s.key}
-                type="button"
-                onClick={() => setStijl(s.key)}
-                className={
-                  "text-left p-4 rounded-lg border transition-colors " +
-                  (active
-                    ? "border-tulpiaan-goud bg-tulpiaan-ivoor ring-1 ring-tulpiaan-goud"
-                    : "border-tulpiaan-grijs/30 bg-tulpiaan-wit hover:border-tulpiaan-goud")
-                }
-              >
-                <div className="font-semibold text-tulpiaan-zwart">{s.titel}</div>
-                <div className="text-xs text-tulpiaan-grijs mt-1">{s.beschrijving}</div>
-              </button>
-            );
-          })}
-        </div>
-        <button
-          type="button"
-          onClick={genereer}
-          disabled={!stijl || pending}
-          className="mt-3 inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 hover:bg-tulpiaan-donkergoud disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <Sparkles className="h-4 w-4" />
-          {pending ? "Genereren…" : "Genereer voorsteltekst"}
-        </button>
-        {gegenereerdOp && (
-          <span className="ml-3 text-xs text-tulpiaan-grijs">
-            Laatst gegenereerd:{" "}
-            {new Intl.DateTimeFormat("nl-NL", {
-              day: "2-digit",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-            }).format(new Date(gegenereerdOp))}
-          </span>
-        )}
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-tulpiaan-zwart">Voorsteltekst</h2>
-          {savedNotice && <span className="text-xs text-green-700">Opgeslagen ✓</span>}
-        </div>
-        <textarea
-          value={tekst}
-          onChange={(e) => setTekst(e.target.value)}
-          onBlur={saveTekst}
-          rows={20}
-          placeholder="Klik 'Genereer voorsteltekst' of typ hier zelf je tekst…"
-          className="w-full rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-3 py-3 text-sm text-tulpiaan-zwart focus:outline-none focus:ring-2 focus:ring-tulpiaan-goud font-serif leading-relaxed"
-        />
-        <details className="mt-2">
-          <summary className="text-xs text-tulpiaan-grijs cursor-pointer hover:text-tulpiaan-zwart">
-            Voorbeeld met handtekening
-          </summary>
-          <pre className="mt-2 p-3 bg-tulpiaan-ivoor border border-tulpiaan-grijs/20 rounded text-xs whitespace-pre-wrap font-sans">
-{handtekening}
-          </pre>
-        </details>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-2">
-        <button
-          type="button"
-          onClick={copyToClipboard}
-          disabled={!tekst}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-4 py-2 text-sm hover:border-tulpiaan-goud disabled:opacity-50"
-        >
-          {copied ? <Check className="h-4 w-4 text-green-700" /> : <ClipboardCopy className="h-4 w-4" />}
-          {copied ? "Gekopieerd" : "Klembord"}
-        </button>
-        <button
-          type="button"
-          onClick={downloadWord}
-          disabled={!tekst}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-4 py-2 text-sm hover:border-tulpiaan-goud disabled:opacity-50"
-        >
-          <FileText className="h-4 w-4" />
-          Word
-        </button>
-        <button
-          type="button"
-          onClick={downloadPdf}
-          disabled={!tekst}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-4 py-2 text-sm hover:border-tulpiaan-goud disabled:opacity-50"
-        >
-          <FileType className="h-4 w-4" />
-          PDF
-        </button>
-      </div>
-
-      <div className="pt-2 border-t border-tulpiaan-grijs/20">
-        {sentNotice ? (
-          <div className="inline-flex items-center gap-2 text-sm text-green-800 bg-green-50 border border-green-200 rounded px-3 py-2">
-            <Check className="h-4 w-4" />
-            Gemarkeerd als verstuurd
-          </div>
-        ) : (
+      {!heeftTekst ? (
+        <div className="rounded-lg border border-tulpiaan-grijs/30 bg-tulpiaan-wit p-8 text-center">
+          <p className="text-sm text-tulpiaan-grijs mb-4">
+            Nog geen voorsteltekst. Klik om een eerste versie te genereren op
+            basis van alles wat je tijdens de intake hebt vastgelegd.
+          </p>
           <button
             type="button"
-            onClick={markVerstuurd}
-            disabled={!tekst || pending}
-            className="inline-flex items-center gap-2 rounded border border-tulpiaan-grijs/40 px-4 py-2 text-sm text-tulpiaan-zwart hover:border-tulpiaan-goud disabled:opacity-50"
+            onClick={genereer}
+            disabled={generatePending}
+            className="inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-5 py-2.5 hover:bg-tulpiaan-donkergoud disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <Send className="h-4 w-4" />
-            Markeer als verstuurd
+            <Sparkles className="h-4 w-4" />
+            {generatePending ? "Genereren…" : "Genereer voorstel"}
           </button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="lg:flex lg:gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-tulpiaan-zwart">Voorsteltekst</h2>
+              <SaveIndicator status={saveStatus} errorMsg={errorMsg} />
+            </div>
+            <textarea
+              value={tekst}
+              onChange={(e) => set("voorstelTekst", e.target.value)}
+              rows={22}
+              className="w-full rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-3 py-3 text-sm text-tulpiaan-zwart focus:outline-none focus:ring-2 focus:ring-tulpiaan-goud font-serif leading-relaxed"
+            />
+
+            <div className="mt-3 pt-3 border-t border-tulpiaan-grijs/20">
+              <div className="text-[11px] uppercase tracking-wider text-tulpiaan-grijs mb-1">
+                Handtekening (wordt automatisch toegevoegd bij export)
+              </div>
+              <pre className="text-xs whitespace-pre-wrap font-sans text-tulpiaan-zwart">
+{handtekening}
+              </pre>
+            </div>
+
+            {generatedAt && (
+              <p className="mt-2 text-xs text-tulpiaan-grijs">
+                Laatst gegenereerd:{" "}
+                {new Intl.DateTimeFormat("nl-NL", {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }).format(new Date(generatedAt))}
+              </p>
+            )}
+          </div>
+
+          <aside className="lg:w-[220px] shrink-0 mt-4 lg:mt-0">
+            <h3 className="text-xs uppercase tracking-wider text-tulpiaan-grijs mb-2">
+              AI-modi
+            </h3>
+            <div className="space-y-2">
+              <ActionButton
+                icon={SpellCheck}
+                label="Check spelling en grammatica"
+                onClick={runCheck}
+                busy={aiBusy === "check"}
+                disabled={aiBusy !== null}
+              />
+              <ActionButton
+                icon={Wand2}
+                label="Verbeter (spelling + stijl)"
+                onClick={runVerbeter}
+                busy={aiBusy === "verbeter"}
+                disabled={aiBusy !== null}
+              />
+              <ActionButton
+                icon={Dice5}
+                label="Genereer totaal opnieuw"
+                onClick={runRegenerate}
+                busy={aiBusy === "regenerate"}
+                disabled={aiBusy !== null}
+              />
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {heeftTekst && (
+        <>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              type="button"
+              onClick={copyToClipboard}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-4 py-2 text-sm hover:border-tulpiaan-goud"
+            >
+              {copied ? <Check className="h-4 w-4 text-green-700" /> : <ClipboardCopy className="h-4 w-4" />}
+              {copied ? "Gekopieerd" : "Klembord"}
+            </button>
+            <button
+              type="button"
+              onClick={downloadWord}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-4 py-2 text-sm hover:border-tulpiaan-goud"
+            >
+              <FileText className="h-4 w-4" />
+              Word
+            </button>
+            <button
+              type="button"
+              onClick={downloadPdf}
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-4 py-2 text-sm hover:border-tulpiaan-goud"
+            >
+              <FileType className="h-4 w-4" />
+              PDF
+            </button>
+          </div>
+
+          <div className="pt-2 border-t border-tulpiaan-grijs/20">
+            {sentNotice ? (
+              <div className="inline-flex items-center gap-2 text-sm text-green-800 bg-green-50 border border-green-200 rounded px-3 py-2">
+                <Check className="h-4 w-4" />
+                Gemarkeerd als verstuurd
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={markVerstuurd}
+                disabled={pending}
+                className="inline-flex items-center gap-2 rounded border border-tulpiaan-grijs/40 px-4 py-2 text-sm text-tulpiaan-zwart hover:border-tulpiaan-goud disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" />
+                Markeer als verstuurd
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      {modalKind && (
+        <TrackChangesModal
+          titel={
+            modalKind === "check"
+              ? "Spelling- en grammatica-suggesties"
+              : "Tulpiaan-stijl-suggesties"
+          }
+          suggesties={modalSuggesties}
+          onClose={() => {
+            setModalKind(null);
+            setModalSuggesties([]);
+          }}
+          onApply={applySuggesties}
+        />
+      )}
     </div>
   );
+}
+
+function ActionButton({
+  icon: Icon,
+  label,
+  onClick,
+  busy,
+  disabled,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  onClick: () => void;
+  busy: boolean;
+  disabled: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full flex items-center gap-2 rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-3 py-2 text-xs text-tulpiaan-zwart hover:border-tulpiaan-goud disabled:opacity-50 disabled:cursor-wait transition-colors"
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0 text-tulpiaan-donkergoud" />
+      <span className="text-left flex-1">{label}</span>
+      {busy && (
+        <span className="h-3 w-3 rounded-full border-2 border-tulpiaan-goud border-t-transparent animate-spin shrink-0" />
+      )}
+    </button>
+  );
+}
+
+function VersieKolom({
+  label,
+  tekst,
+  onKies,
+  disabled,
+}: {
+  label: string;
+  tekst: string;
+  onKies: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="rounded-lg border border-tulpiaan-grijs/30 bg-tulpiaan-wit p-3 flex flex-col">
+      <div className="text-xs uppercase tracking-wider text-tulpiaan-grijs mb-2">
+        {label}
+      </div>
+      <pre className="flex-1 text-xs whitespace-pre-wrap font-serif text-tulpiaan-zwart leading-relaxed max-h-[60vh] overflow-y-auto bg-tulpiaan-ivoor/30 rounded p-3 border border-tulpiaan-grijs/20">
+{tekst}
+      </pre>
+      <button
+        type="button"
+        onClick={onKies}
+        disabled={disabled}
+        className="mt-3 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 text-sm hover:bg-tulpiaan-donkergoud disabled:opacity-50"
+      >
+        ✓ Behoud deze versie
+      </button>
+    </div>
+  );
+}
+
+function SaveIndicator({
+  status,
+  errorMsg,
+}: {
+  status: "idle" | "saving" | "saved" | "error";
+  errorMsg: string | null;
+}) {
+  if (status === "saving") {
+    return <span className="text-xs text-tulpiaan-grijs">Bezig met opslaan…</span>;
+  }
+  if (status === "saved") {
+    return <span className="text-xs text-green-700">Opgeslagen ✓</span>;
+  }
+  if (status === "error") {
+    return (
+      <span className="text-xs text-red-700" title={errorMsg ?? ""}>
+        Opslaan faalde
+      </span>
+    );
+  }
+  return <span className="text-xs text-tulpiaan-grijs/60">—</span>;
 }

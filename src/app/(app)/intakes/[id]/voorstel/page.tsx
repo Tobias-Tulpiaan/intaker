@@ -32,14 +32,14 @@ export default async function VoorstelPage({
         Voorstel — {intake.candidate.firstName} {intake.candidate.lastName}
       </h1>
       <p className="text-sm text-tulpiaan-grijs mb-6">
-        Kies een stijl en genereer een voorsteltekst. Je kunt achteraf nog
-        bewerken.
+        Genereer een voorsteltekst en bewerk waar nodig. Wijzigingen worden
+        automatisch opgeslagen.
       </p>
 
       <VoorstelWorkspace
         intakeId={intake.id}
-        initialStijl={(intake.voorstelStijl as "recht" | "warm" | "pareltje" | "zorgvuldig" | null) ?? null}
         initialTekst={intake.voorstelTekst ?? ""}
+        initialTekstV2={intake.voorstelTekstV2 ?? null}
         kandidaatNaam={`${intake.candidate.firstName} ${intake.candidate.lastName}`}
         handtekening={handtekening}
         status={intake.status}

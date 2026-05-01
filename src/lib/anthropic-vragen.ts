@@ -1,15 +1,16 @@
 import { getAnthropic, VRAGEN_MODEL } from "@/lib/anthropic";
-import { VRAGEN_SYSTEM, buildVragenUserPrompt } from "@/lib/intake-prompts";
+import {
+  VRAGEN_SYSTEM,
+  buildVragenUserPrompt,
+  type VragenPromptInput,
+} from "@/lib/intake-prompts";
 import type { OpMaatVraag } from "@/lib/intake-ai";
 
-export async function generateVragenViaAnthropic(intake: {
-  vacatureTekst: string | null;
-  werkervaringTekst: string | null;
-  bedrijfsUrl: string | null;
-  bedrijfsTekst: string | null;
-}): Promise<OpMaatVraag[]> {
+export async function generateVragenViaAnthropic(
+  input: VragenPromptInput,
+): Promise<OpMaatVraag[]> {
   const client = getAnthropic();
-  const userPrompt = buildVragenUserPrompt(intake);
+  const userPrompt = buildVragenUserPrompt(input);
 
   const msg = await client.messages.create({
     model: VRAGEN_MODEL,

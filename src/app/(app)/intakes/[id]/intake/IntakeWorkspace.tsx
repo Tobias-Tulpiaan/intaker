@@ -158,10 +158,10 @@ export function IntakeWorkspace({
                     >
                       {v.afgevinkt && <Check className="h-3 w-3 text-tulpiaan-zwart" />}
                     </button>
-                    <div className="flex-1">
+                    <div className="flex-1 flex items-baseline gap-2 flex-wrap">
                       <span
                         className={
-                          "inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded mr-2 " +
+                          "inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 " +
                           TAG_COLORS[v.tag]
                         }
                       >
