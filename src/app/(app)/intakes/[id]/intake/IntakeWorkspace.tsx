@@ -181,7 +181,7 @@ export function IntakeWorkspace({
                 value={values.vrijInvullenTekst}
                 onChange={(e) => set("vrijInvullenTekst", e.target.value)}
                 placeholder="Begin gewoon met typen…"
-                className="w-full min-h-[500px] rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit p-4 text-sm text-tulpiaan-zwart focus:outline-none focus:ring-2 focus:ring-tulpiaan-goud font-serif leading-relaxed resize-y"
+                className="w-full min-h-[500px] rounded border border-black/[0.08] bg-white p-4 text-sm text-tulpiaan-zwart focus:outline-none focus:ring-2 focus:ring-tulpiaan-goud leading-relaxed resize-y"
               />
             </div>
           </div>

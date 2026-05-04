@@ -57,21 +57,15 @@ export default async function IntakesPage() {
                 <Link href={`/intakes/${i.id}`} className="block">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-tulpiaan-zwart truncate">
+                      <div className="text-sm text-tulpiaan-donkergoud font-medium truncate">
+                        {i.clientName ?? "Geen opdrachtgever"}
+                      </div>
+                      <div className="text-tulpiaan-zwart font-medium truncate mt-0.5">
+                        {i.positionTitle ?? "—"}
+                      </div>
+                      <div className="text-xs text-tulpiaan-grijs mt-1 truncate">
                         {i.candidate.firstName} {i.candidate.lastName}
-                      </div>
-                      <div className="text-xs mt-0.5 truncate">
-                        <span className="text-tulpiaan-zwart">
-                          {i.positionTitle ?? "—"}
-                        </span>
-                        {i.clientName ? (
-                          <span className="text-tulpiaan-donkergoud font-medium">
-                            {" · "}
-                            {i.clientName}
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="text-xs text-tulpiaan-grijs mt-0.5">
+                        {" · "}
                         {formatDate(i.intakeDate)}
                       </div>
                     </div>
