@@ -25,15 +25,15 @@ export function statusLabel(status: string): string {
 export function statusPillClass(status: string): string {
   switch (status) {
     case "setup":
-      return "bg-tulpiaan-ivoor text-tulpiaan-grijs border border-tulpiaan-grijs/30";
+      return "bg-gray-100 text-gray-700 border border-gray-200 font-medium";
     case "intake":
-      return "bg-blue-50 text-blue-800 border border-blue-200";
+      return "bg-blue-50 text-blue-800 border border-blue-200 font-medium";
     case "voorstel":
-      return "bg-amber-50 text-amber-900 border border-amber-200";
+      return "bg-tulpiaan-ivoor text-tulpiaan-donkergoud border border-tulpiaan-goud/40 font-medium";
     case "verstuurd":
-      return "bg-green-100 text-green-800 border border-green-200";
+      return "bg-green-100 text-green-800 border border-green-200 font-medium";
     default:
-      return "bg-tulpiaan-ivoor text-tulpiaan-grijs border border-tulpiaan-grijs/30";
+      return "bg-gray-100 text-gray-700 border border-gray-200 font-medium";
   }
 }
 

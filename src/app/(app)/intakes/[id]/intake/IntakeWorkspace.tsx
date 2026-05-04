@@ -375,7 +375,7 @@ export function IntakeWorkspace({
           <Link
             href={`/intakes/${intakeId}/voorstel`}
             onClick={() => void flush()}
-            className="rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors text-center"
+            className="rounded bg-tulpiaan-goud text-white font-semibold px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors text-center"
           >
             Genereer voorsteltekst →
           </Link>

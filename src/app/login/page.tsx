@@ -83,7 +83,7 @@ export default async function LoginPage({
 
           <button
             type="submit"
-            className="w-full rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors"
+            className="w-full rounded bg-tulpiaan-goud text-white font-semibold px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors"
           >
             Inloggen
           </button>

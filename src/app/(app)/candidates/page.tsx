@@ -24,7 +24,7 @@ export default async function CandidatesPage() {
         <h1 className="text-2xl font-semibold text-tulpiaan-zwart">Kandidaten</h1>
         <Link
           href="/candidates/new"
-          className="inline-flex items-center justify-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors w-full sm:w-auto"
+          className="inline-flex items-center justify-center gap-2 rounded bg-tulpiaan-goud text-white font-semibold px-4 py-2 hover:bg-tulpiaan-donkergoud transition-colors w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           Nieuwe kandidaat

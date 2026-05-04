@@ -83,7 +83,7 @@ export default async function CandidatePage({
         <h2 className="text-lg font-semibold text-tulpiaan-zwart">Intakes</h2>
         <Link
           href={`/intakes/new?candidateId=${candidate.id}`}
-          className="inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart text-sm font-medium px-3 py-1.5 hover:bg-tulpiaan-donkergoud transition-colors"
+          className="inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-white text-sm font-semibold px-3 py-1.5 hover:bg-tulpiaan-donkergoud transition-colors"
         >
           <Plus className="h-4 w-4" />
           Nieuwe intake

@@ -303,7 +303,7 @@ export function VoorstelWorkspace({
             type="button"
             onClick={genereer}
             disabled={generatePending}
-            className="inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-5 py-2.5 hover:bg-tulpiaan-donkergoud disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-2 rounded bg-tulpiaan-goud text-white font-semibold px-5 py-2.5 hover:bg-tulpiaan-donkergoud disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Sparkles className="h-4 w-4" />
             {generatePending ? "Genereren…" : "Genereer voorstel"}
@@ -519,7 +519,7 @@ function VersieKolom({
         type="button"
         onClick={onKies}
         disabled={disabled}
-        className="mt-3 rounded bg-tulpiaan-goud text-tulpiaan-zwart font-medium px-4 py-2 text-sm hover:bg-tulpiaan-donkergoud disabled:opacity-50"
+        className="mt-3 rounded bg-tulpiaan-goud text-white font-semibold px-4 py-2 text-sm hover:bg-tulpiaan-donkergoud disabled:opacity-50"
       >
         ✓ Behoud deze versie
       </button>
