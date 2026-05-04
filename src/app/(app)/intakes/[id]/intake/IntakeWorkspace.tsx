@@ -147,7 +147,7 @@ export function IntakeWorkspace({
 
         {activeTab === "vrij" && (
           <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-4">
-            <aside className="rounded-lg border border-tulpiaan-grijs/20 bg-tulpiaan-wit p-3">
+            <aside className="rounded-lg border border-black/[0.08] bg-tulpiaan-wit p-3">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-tulpiaan-grijs mb-2">
                 Onderwerpen om te dekken
               </h3>
@@ -403,7 +403,7 @@ export function IntakeWorkspace({
           <button
             type="button"
             onClick={() => setKladblokOpenMobile((v) => !v)}
-            className="w-full flex items-center justify-between px-4 h-12 border-b border-tulpiaan-grijs/20"
+            className="w-full flex items-center justify-between px-4 h-12 border-b border-black/[0.08]"
           >
             <span className="text-sm font-medium text-tulpiaan-zwart">Kladblok</span>
             {kladblokOpenMobile ? (
@@ -451,7 +451,7 @@ function KladblokCard({
       className={
         compact
           ? ""
-          : "rounded-lg border border-tulpiaan-grijs/20 bg-tulpiaan-wit p-4"
+          : "rounded-lg border border-black/[0.08] bg-tulpiaan-wit p-4"
       }
     >
       {!compact && (
@@ -484,7 +484,7 @@ function KladblokCard({
           type="button"
           disabled
           title="AI-verwerking komt later"
-          className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded border border-tulpiaan-grijs/20 text-tulpiaan-grijs opacity-60 cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded border border-black/[0.08] text-tulpiaan-grijs opacity-60 cursor-not-allowed"
         >
           <Sparkles className="h-3 w-3" />
           Verwerk in vragenlijst
@@ -519,7 +519,7 @@ function SaveIndicator({
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-tulpiaan-grijs/20 bg-tulpiaan-wit p-4">
+    <div className="rounded-lg border border-black/[0.08] bg-tulpiaan-wit p-4">
       {children}
     </div>
   );
@@ -565,7 +565,7 @@ function Section({
         "rounded-lg border bg-tulpiaan-wit p-4 space-y-3 " +
         (cruciaal
           ? "border-tulpiaan-goud/60 ring-1 ring-tulpiaan-goud/20"
-          : "border-tulpiaan-grijs/20")
+          : "border-black/[0.08]")
       }
     >
       <h2 className="text-base font-semibold text-tulpiaan-zwart flex items-center gap-2">

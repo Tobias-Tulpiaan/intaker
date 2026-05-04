@@ -48,12 +48,12 @@ export default async function CandidatesPage() {
             {candidates.map((c) => (
               <li
                 key={c.id}
-                className="bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-4 hover:border-tulpiaan-goud transition-colors"
+                className="bg-white border border-black/[0.08] rounded-lg p-4 hover:bg-tulpiaan-ivoor transition-colors"
               >
                 <Link href={`/candidates/${c.id}`} className="block">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-tulpiaan-zwart truncate">
+                      <div className="font-semibold text-tulpiaan-zwart truncate">
                         {c.firstName} {c.lastName}
                       </div>
                       <div className="text-xs text-tulpiaan-grijs mt-0.5 truncate">
@@ -61,7 +61,7 @@ export default async function CandidatesPage() {
                         {c.city ? ` · ${c.city}` : ""}
                       </div>
                     </div>
-                    <div className="text-xs text-tulpiaan-grijs whitespace-nowrap">
+                    <div className="text-xs text-tulpiaan-donkergoud font-medium whitespace-nowrap">
                       {c._count.intakes} intake{c._count.intakes === 1 ? "" : "s"}
                     </div>
                   </div>
@@ -71,9 +71,9 @@ export default async function CandidatesPage() {
           </ul>
 
           {/* Desktop table */}
-          <div className="hidden sm:block overflow-x-auto rounded border border-tulpiaan-grijs/20 bg-tulpiaan-wit">
+          <div className="hidden sm:block overflow-x-auto rounded-lg border border-black/[0.08] bg-white">
             <table className="w-full text-sm min-w-[640px]">
-              <thead className="bg-tulpiaan-ivoor border-b border-tulpiaan-grijs/20">
+              <thead className="bg-tulpiaan-ivoor border-b border-black/[0.08]">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Naam</th>
                   <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">E-mail</th>
@@ -86,19 +86,19 @@ export default async function CandidatesPage() {
                 {candidates.map((c) => (
                   <tr
                     key={c.id}
-                    className="border-b border-tulpiaan-grijs/10 last:border-0 hover:bg-tulpiaan-ivoor/50"
+                    className="border-b border-black/[0.06] last:border-0 hover:bg-tulpiaan-ivoor"
                   >
                     <td className="px-4 py-3">
                       <Link
                         href={`/candidates/${c.id}`}
-                        className="text-tulpiaan-zwart font-medium hover:text-tulpiaan-donkergoud"
+                        className="text-tulpiaan-zwart font-semibold hover:text-tulpiaan-donkergoud"
                       >
                         {c.firstName} {c.lastName}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-tulpiaan-grijs">{c.email ?? "—"}</td>
                     <td className="px-4 py-3 text-tulpiaan-grijs">{c.city ?? "—"}</td>
-                    <td className="px-4 py-3 text-tulpiaan-grijs">{c._count.intakes}</td>
+                    <td className="px-4 py-3 text-tulpiaan-donkergoud font-medium">{c._count.intakes}</td>
                     <td className="px-4 py-3 text-tulpiaan-grijs">{formatDate(c.createdAt)}</td>
                   </tr>
                 ))}

@@ -323,7 +323,7 @@ export function VoorstelWorkspace({
               className="w-full rounded border border-tulpiaan-grijs/40 bg-tulpiaan-wit px-3 py-3 text-sm text-tulpiaan-zwart focus:outline-none focus:ring-2 focus:ring-tulpiaan-goud font-serif leading-relaxed"
             />
 
-            <div className="mt-3 pt-3 border-t border-tulpiaan-grijs/20">
+            <div className="mt-3 pt-3 border-t border-black/[0.08]">
               <div className="text-[11px] uppercase tracking-wider text-tulpiaan-grijs mb-1">
                 Handtekening (wordt automatisch toegevoegd bij export)
               </div>
@@ -412,7 +412,7 @@ export function VoorstelWorkspace({
             </button>
           </div>
 
-          <div className="pt-2 border-t border-tulpiaan-grijs/20">
+          <div className="pt-2 border-t border-black/[0.08]">
             {sentNotice ? (
               <div className="inline-flex items-center gap-2 text-sm text-green-800 bg-green-50 border border-green-200 rounded px-3 py-2">
                 <Check className="h-4 w-4" />
@@ -512,7 +512,7 @@ function VersieKolom({
       <div className="text-xs uppercase tracking-wider text-tulpiaan-grijs mb-2">
         {label}
       </div>
-      <pre className="flex-1 text-xs whitespace-pre-wrap font-serif text-tulpiaan-zwart leading-relaxed max-h-[60vh] overflow-y-auto bg-tulpiaan-ivoor/30 rounded p-3 border border-tulpiaan-grijs/20">
+      <pre className="flex-1 text-xs whitespace-pre-wrap font-serif text-tulpiaan-zwart leading-relaxed max-h-[60vh] overflow-y-auto bg-tulpiaan-ivoor/30 rounded p-3 border border-black/[0.08]">
 {tekst}
       </pre>
       <button

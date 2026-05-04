@@ -52,17 +52,24 @@ export default async function IntakesPage() {
             {intakes.map((i) => (
               <li
                 key={i.id}
-                className="bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-4 hover:border-tulpiaan-goud transition-colors"
+                className="bg-white border border-black/[0.08] rounded-lg p-4 hover:bg-tulpiaan-ivoor transition-colors"
               >
                 <Link href={`/intakes/${i.id}`} className="block">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-tulpiaan-zwart truncate">
+                      <div className="font-semibold text-tulpiaan-zwart truncate">
                         {i.candidate.firstName} {i.candidate.lastName}
                       </div>
-                      <div className="text-xs text-tulpiaan-grijs mt-0.5 truncate">
-                        {i.positionTitle ?? "—"}
-                        {i.clientName ? ` · ${i.clientName}` : ""}
+                      <div className="text-xs mt-0.5 truncate">
+                        <span className="text-tulpiaan-zwart">
+                          {i.positionTitle ?? "—"}
+                        </span>
+                        {i.clientName ? (
+                          <span className="text-tulpiaan-donkergoud font-medium">
+                            {" · "}
+                            {i.clientName}
+                          </span>
+                        ) : null}
                       </div>
                       <div className="text-xs text-tulpiaan-grijs mt-0.5">
                         {formatDate(i.intakeDate)}
@@ -83,34 +90,34 @@ export default async function IntakesPage() {
           </ul>
 
           {/* Desktop table */}
-          <div className="hidden sm:block overflow-x-auto rounded border border-tulpiaan-grijs/20 bg-tulpiaan-wit">
+          <div className="hidden sm:block overflow-x-auto rounded-lg border border-black/[0.08] bg-white">
             <table className="w-full text-sm min-w-[720px]">
-            <thead className="bg-tulpiaan-ivoor border-b border-tulpiaan-grijs/20">
+            <thead className="bg-tulpiaan-ivoor border-b border-black/[0.08]">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Kandidaat</th>
-                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Functie</th>
-                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Opdrachtgever</th>
-                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Recruiter</th>
-                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Datum</th>
-                <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Status</th>
+                <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Kandidaat</th>
+                <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Functie</th>
+                <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Opdrachtgever</th>
+                <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Recruiter</th>
+                <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Datum</th>
+                <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Status</th>
               </tr>
             </thead>
             <tbody>
               {intakes.map((i) => (
                 <tr
                   key={i.id}
-                  className="border-b border-tulpiaan-grijs/10 last:border-0 hover:bg-tulpiaan-ivoor/50"
+                  className="border-b border-black/[0.06] last:border-0 hover:bg-tulpiaan-ivoor"
                 >
                   <td className="px-4 py-3">
                     <Link
                       href={`/intakes/${i.id}`}
-                      className="text-tulpiaan-zwart font-medium hover:text-tulpiaan-donkergoud"
+                      className="text-tulpiaan-zwart font-semibold hover:text-tulpiaan-donkergoud"
                     >
                       {i.candidate.firstName} {i.candidate.lastName}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-tulpiaan-grijs">{i.positionTitle ?? "—"}</td>
-                  <td className="px-4 py-3 text-tulpiaan-grijs">{i.clientName ?? "—"}</td>
+                  <td className="px-4 py-3 text-tulpiaan-zwart">{i.positionTitle ?? "—"}</td>
+                  <td className="px-4 py-3 text-tulpiaan-donkergoud font-medium">{i.clientName ?? "—"}</td>
                   <td className="px-4 py-3 text-tulpiaan-grijs">
                     {i.recruiter.name ?? i.recruiter.email}
                   </td>

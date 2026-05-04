@@ -32,7 +32,7 @@ export default function NewCandidatePage() {
         </div>
       )}
 
-      <form action={formAction} className="space-y-4 bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-6">
+      <form action={formAction} className="space-y-4 bg-tulpiaan-wit border border-black/[0.08] rounded-lg p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Voornaam *" name="firstName" required />
           <Field label="Achternaam *" name="lastName" required />

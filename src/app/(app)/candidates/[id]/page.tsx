@@ -46,7 +46,7 @@ export default async function CandidatePage({
         </h1>
       </div>
 
-      <div className="bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-6 mb-6">
+      <div className="bg-white border border-black/[0.08] rounded-lg p-6 mb-6">
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <Row label="E-mail" value={candidate.email} />
           <Row label="Telefoon" value={candidate.phone} />
@@ -68,7 +68,7 @@ export default async function CandidatePage({
           />
         </dl>
         {candidate.notes && (
-          <div className="mt-4 pt-4 border-t border-tulpiaan-grijs/20">
+          <div className="mt-4 pt-4 border-t border-black/[0.08]">
             <div className="text-xs uppercase tracking-wide text-tulpiaan-grijs mb-1">
               Notities
             </div>
@@ -99,14 +99,19 @@ export default async function CandidatePage({
           {candidate.intakes.map((intake) => (
             <li
               key={intake.id}
-              className="bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-4 hover:border-tulpiaan-goud transition-colors"
+              className="bg-white border border-black/[0.08] rounded-lg p-4 hover:border-tulpiaan-goud transition-colors"
             >
               <Link href={`/intakes/${intake.id}`} className="block">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-tulpiaan-zwart">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-tulpiaan-zwart truncate">
                       {intake.positionTitle ?? "Intake"}
-                      {intake.clientName ? ` — ${intake.clientName}` : ""}
+                      {intake.clientName ? (
+                        <span className="text-tulpiaan-donkergoud font-medium">
+                          {" — "}
+                          {intake.clientName}
+                        </span>
+                      ) : null}
                     </div>
                     <div className="text-xs text-tulpiaan-grijs mt-1">
                       {formatDate(intake.intakeDate)} · door{" "}

@@ -77,7 +77,7 @@ export function SetupForm({
 
       <form
         action={formAction}
-        className="space-y-6 bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-6"
+        className="space-y-6 bg-tulpiaan-wit border border-black/[0.08] rounded-lg p-6"
       >
         <input type="hidden" name="intakeId" value={intake.id} />
         <input type="hidden" name="mode" value={mode} />
@@ -265,7 +265,7 @@ export function SetupForm({
         </section>
 
         {/* Strategische input voor AI (auto-save) */}
-        <section className="border-t border-tulpiaan-grijs/20 pt-5">
+        <section className="border-t border-black/[0.08] pt-5">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-sm font-semibold text-tulpiaan-zwart">
               Strategische input voor AI (optioneel)

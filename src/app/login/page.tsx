@@ -31,7 +31,7 @@ export default async function LoginPage({
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-8 shadow-sm">
+      <div className="w-full max-w-sm bg-tulpiaan-wit border border-black/[0.08] rounded-lg p-8 shadow-sm">
         <h1 className="text-2xl font-semibold text-tulpiaan-zwart mb-1">
           Tulpiaan Intaker
         </h1>

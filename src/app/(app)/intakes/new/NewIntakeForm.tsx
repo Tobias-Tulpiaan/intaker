@@ -34,7 +34,7 @@ export function NewIntakeForm({
 
       <form
         action={formAction}
-        className="space-y-4 bg-tulpiaan-wit border border-tulpiaan-grijs/20 rounded-lg p-6"
+        className="space-y-4 bg-tulpiaan-wit border border-black/[0.08] rounded-lg p-6"
       >
         <p className="text-sm text-tulpiaan-grijs">
           Kies een kandidaat. In de volgende stap vul je vacaturetekst,
