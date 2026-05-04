@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Home, Users, ClipboardList, Menu, X } from "lucide-react";
+import {
+  Home,
+  Users,
+  ClipboardList,
+  Menu,
+  X,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import { logoutAction } from "./actions";
 
 const navItems = [
@@ -40,17 +48,17 @@ export function SidebarShell({
 
   return (
     <>
-      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between bg-tulpiaan-zwart text-tulpiaan-ivoor px-4 h-14">
+      <header className="md:hidden sticky top-0 z-30 flex items-center justify-between bg-white text-tulpiaan-zwart px-4 h-14 border-b border-black/[0.08]">
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Menu openen"
-          className="p-2 -ml-2 rounded hover:bg-tulpiaan-grijs/20"
+          className="p-2 -ml-2 rounded hover:bg-tulpiaan-ivoor"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="text-tulpiaan-goud font-semibold tracking-wide text-sm">
-          TULPIAAN INTAKER
+        <span className="text-tulpiaan-goud font-medium tracking-wide text-sm">
+          Tulpiaan
         </span>
         <span className="w-9" aria-hidden />
       </header>
@@ -67,26 +75,64 @@ export function SidebarShell({
       <aside
         className={
           "fixed md:static inset-y-0 left-0 z-50 w-[260px] md:w-[240px] shrink-0 " +
-          "bg-tulpiaan-zwart text-tulpiaan-ivoor flex flex-col " +
+          "bg-white text-tulpiaan-zwart flex flex-col " +
+          "border-r border-black/[0.08] " +
           "transition-transform md:transition-none " +
           (open ? "translate-x-0" : "-translate-x-full md:translate-x-0")
         }
       >
-        <div className="hidden md:block px-5 py-6 border-b border-tulpiaan-grijs/30">
-          <h1 className="text-tulpiaan-goud font-semibold tracking-wide text-sm">
-            TULPIAAN INTAKER
-          </h1>
+        <div className="hidden md:flex items-center gap-3 px-5 py-5 border-b border-black/[0.08]">
+          <div className="h-9 w-9 rounded-md bg-tulpiaan-goud text-white flex items-center justify-center font-semibold text-sm shrink-0">
+            T
+          </div>
+          <div className="flex-1 min-w-0">
+            <div
+              className="text-tulpiaan-goud font-medium leading-tight"
+              style={{ fontSize: 17 }}
+            >
+              Tulpiaan
+            </div>
+            <div
+              className="text-tulpiaan-grijs leading-tight"
+              style={{ fontSize: 11 }}
+            >
+              Intaker Dashboard
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Sidebar inklappen"
+            className="text-tulpiaan-grijs hover:text-tulpiaan-zwart transition-colors text-base leading-none px-1"
+          >
+            ‹
+          </button>
         </div>
 
-        <div className="md:hidden flex items-center justify-between px-4 h-14 border-b border-tulpiaan-grijs/30">
-          <span className="text-tulpiaan-goud font-semibold tracking-wide text-sm">
-            TULPIAAN INTAKER
-          </span>
+        <div className="md:hidden flex items-center justify-between px-4 h-14 border-b border-black/[0.08]">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-md bg-tulpiaan-goud text-white flex items-center justify-center font-semibold text-xs">
+              T
+            </div>
+            <div className="leading-tight">
+              <div
+                className="text-tulpiaan-goud font-medium"
+                style={{ fontSize: 14 }}
+              >
+                Tulpiaan
+              </div>
+              <div
+                className="text-tulpiaan-grijs"
+                style={{ fontSize: 10 }}
+              >
+                Intaker Dashboard
+              </div>
+            </div>
+          </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Menu sluiten"
-            className="p-2 -mr-2 rounded hover:bg-tulpiaan-grijs/20"
+            className="p-2 -mr-2 rounded hover:bg-tulpiaan-ivoor"
           >
             <X className="h-5 w-5" />
           </button>
@@ -104,33 +150,59 @@ export function SidebarShell({
                 key={item.href}
                 href={item.href}
                 className={
-                  "flex items-center gap-3 rounded px-3 py-2 text-sm transition-colors " +
+                  "flex items-center gap-3 rounded px-3 py-2 text-sm transition-colors border-l-[3px] " +
                   (active
-                    ? "bg-tulpiaan-grijs/20 text-tulpiaan-ivoor"
-                    : "text-tulpiaan-ivoor hover:bg-tulpiaan-grijs/20")
+                    ? "bg-tulpiaan-ivoor text-tulpiaan-zwart font-medium border-tulpiaan-goud"
+                    : "text-tulpiaan-zwart border-transparent hover:bg-tulpiaan-ivoor/60")
                 }
               >
-                <Icon className="h-4 w-4 text-tulpiaan-goud" />
+                <Icon
+                  className={
+                    "h-4 w-4 " +
+                    (active ? "text-tulpiaan-zwart" : "text-tulpiaan-grijs")
+                  }
+                />
                 {item.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="border-t border-tulpiaan-grijs/30 px-3 py-4 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-tulpiaan-goud text-tulpiaan-zwart flex items-center justify-center font-semibold text-sm shrink-0">
+        <div className="border-t border-black/[0.08] px-3 py-4 flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-tulpiaan-goud text-white flex items-center justify-center font-semibold text-sm shrink-0">
             {initials(user.name, user.email)}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">
+            <div
+              className="font-medium text-tulpiaan-zwart truncate"
+              style={{ fontSize: 13 }}
+            >
               {user.name ?? user.email ?? "Onbekend"}
             </div>
+            {user.name && user.email && (
+              <div
+                className="text-tulpiaan-grijs truncate"
+                style={{ fontSize: 11 }}
+              >
+                {user.email}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              aria-label="Instellingen"
+              className="p-1.5 rounded text-tulpiaan-grijs hover:text-tulpiaan-zwart hover:bg-tulpiaan-ivoor transition-colors"
+            >
+              <Settings className="h-4 w-4" />
+            </button>
             <form action={logoutAction}>
               <button
                 type="submit"
-                className="text-xs text-tulpiaan-grijs hover:text-tulpiaan-goud transition-colors"
+                aria-label="Uitloggen"
+                className="p-1.5 rounded text-tulpiaan-grijs hover:text-tulpiaan-zwart hover:bg-tulpiaan-ivoor transition-colors"
               >
-                Uitloggen
+                <LogOut className="h-4 w-4" />
               </button>
             </form>
           </div>
