@@ -57,7 +57,7 @@ export function SidebarShell({
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="text-tulpiaan-goud font-medium tracking-wide text-sm">
+        <span className="text-tulpiaan-goud font-semibold tracking-wide text-sm">
           Tulpiaan
         </span>
         <span className="w-9" aria-hidden />
@@ -87,7 +87,7 @@ export function SidebarShell({
           </div>
           <div className="flex-1 min-w-0">
             <div
-              className="text-tulpiaan-goud font-medium leading-tight"
+              className="text-tulpiaan-goud font-semibold leading-tight"
               style={{ fontSize: 17 }}
             >
               Tulpiaan
@@ -115,7 +115,7 @@ export function SidebarShell({
             </div>
             <div className="leading-tight">
               <div
-                className="text-tulpiaan-goud font-medium"
+                className="text-tulpiaan-goud font-semibold"
                 style={{ fontSize: 14 }}
               >
                 Tulpiaan

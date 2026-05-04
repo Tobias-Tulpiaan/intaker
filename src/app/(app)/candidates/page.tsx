@@ -75,11 +75,11 @@ export default async function CandidatesPage() {
             <table className="w-full text-sm min-w-[640px]">
               <thead className="bg-tulpiaan-ivoor border-b border-tulpiaan-grijs/20">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Naam</th>
-                  <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">E-mail</th>
-                  <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Woonplaats</th>
-                  <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Intakes</th>
-                  <th className="text-left px-4 py-3 font-medium text-tulpiaan-grijs">Toegevoegd</th>
+                  <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Naam</th>
+                  <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">E-mail</th>
+                  <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Woonplaats</th>
+                  <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Intakes</th>
+                  <th className="text-left px-4 py-3 font-semibold text-tulpiaan-zwart">Toegevoegd</th>
                 </tr>
               </thead>
               <tbody>

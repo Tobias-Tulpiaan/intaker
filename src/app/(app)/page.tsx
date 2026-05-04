@@ -17,7 +17,7 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-4xl">
-      <h1 className="text-3xl font-semibold text-tulpiaan-zwart mb-2">
+      <h1 className="text-2xl font-semibold text-tulpiaan-zwart mb-2">
         Welkom{session?.user?.name ? `, ${session.user.name}` : ""}
       </h1>
       <p className="text-tulpiaan-grijs mb-8">
